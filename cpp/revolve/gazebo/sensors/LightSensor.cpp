@@ -8,6 +8,7 @@
 #include <revolve/gazebo/sensors/LightSensor.h>
 
 #include <boost/bind.hpp>
+#include <boost/pointer_cast.hpp>
 
 namespace gz = gazebo;
 
@@ -32,7 +33,7 @@ LightSensor::LightSensor(::gazebo::physics::ModelPtr model, sdf::ElementPtr sens
 	this->castSensor_->SetActive(true);
 
 	// One byte per channel per pixel
-	this->dataSize_ = 3 * this->castSensor_->GetImageWidth() * this->castSensor_->GetImageHeight();
+	this->dataSize_ = 3 * this->castSensor_->ImageWidth() * this->castSensor_->ImageHeight();
 
 	// Add update connection that will produce new value
 	this->updateConnection_ = this->sensor_->ConnectUpdated(boost::bind(&LightSensor::OnUpdate, this));
@@ -44,7 +45,7 @@ LightSensor::~LightSensor()
 void LightSensor::OnUpdate() {
 	// Average all channels and pixels to get a linear
 	// light intensity.
-	const unsigned char* data = this->castSensor_->GetImageData();
+	const unsigned char* data = this->castSensor_->ImageData();
 	float avg = 0;
 	for (unsigned int i = 0; i < this->dataSize_; ++i) {
 		avg += (unsigned int)data[i];

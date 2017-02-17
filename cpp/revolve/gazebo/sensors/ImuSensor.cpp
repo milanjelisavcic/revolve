@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <boost/pointer_cast.hpp>
 
 namespace gz = gazebo;
 

@@ -8,6 +8,7 @@
 #include <revolve/gazebo/sensors/TouchSensor.h>
 
 #include <boost/bind.hpp>
+#include <boost/pointer_cast.hpp>
 
 namespace gz = gazebo;
 
@@ -37,7 +38,7 @@ TouchSensor::~TouchSensor()
 {}
 
 void TouchSensor::OnUpdate() {
-	auto contacts = this->castSensor_->GetContacts();
+	auto contacts = this->castSensor_->Contacts();
 	this->lastValue_ = contacts.contact_size() > 0;
 }
 
