@@ -42,7 +42,7 @@ void RobotController::Load(::gazebo::physics::ModelPtr _parent,
 	// Store the pointer to the model / world
 	this->model = _parent;
 	this->world = _parent->GetWorld();
-	this->initTime_ = this->world->GetSimTime().Double();
+	this->initTime_ = this->world->SimTime().Double();
 
 	// Create transport node
 	node_.reset(new gz::transport::Node());

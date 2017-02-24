@@ -64,7 +64,7 @@ void WorldController::OnUpdate(const ::gazebo::common::UpdateInfo &_info) {
 		msgs::RobotStates msg;
 		gz::msgs::Set(msg.mutable_time(), _info.simTime);
 
-		for (auto model : world_->GetModels()) {
+		for (auto model : world_->Models()) {
 			if (model->IsStatic()) {
 				// Ignore static models such as the ground and obstacles
 				continue;
@@ -75,7 +75,7 @@ void WorldController::OnUpdate(const ::gazebo::common::UpdateInfo &_info) {
 			stateMsg->set_id(model->GetId());
 
 			gz::msgs::Pose *poseMsg = stateMsg->mutable_pose();
-			gz::msgs::Set(poseMsg, model->GetRelativePose().Ign());
+			gz::msgs::Set(poseMsg, model->RelativePose());
 		}
 
 		if (msg.robot_state_size() > 0) {
@@ -92,7 +92,7 @@ void WorldController::HandleRequest(ConstRequestPtr & request) {
 		std::cout << "Processing request `" << request->id()
 					<< "` to delete robot `" << name << "`" << std::endl;
 
-		gz::physics::ModelPtr model = world_->GetModel(name);
+		gz::physics::ModelPtr model = world_->ModelByName(name);
 		if (model) {
 			// Tell the world to remove the model
 			// Using `World::RemoveModel()` from here crashes the transport library, the
@@ -172,13 +172,13 @@ void WorldController::OnModel(ConstModelPtr &msg) {
 
 	msgs::ModelInserted inserted;
 	inserted.mutable_model()->CopyFrom(*msg);
-	gz::msgs::Set(inserted.mutable_time(), world_->GetSimTime());
+	gz::msgs::Set(inserted.mutable_time(), world_->SimTime());
 	inserted.SerializeToString(resp.mutable_serialized_data());
 
 	responsePub_->Publish(resp);
 
 	std::cout << "Model `" << name << "` inserted, world now contains " <<
-			world_->GetModelCount() << " models." << std::endl;
+			world_->ModelCount() << " models." << std::endl;
 }
 
 void WorldController::HandleResponse(ConstResponsePtr &response) {

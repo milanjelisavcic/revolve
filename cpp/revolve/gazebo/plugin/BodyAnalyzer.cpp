@@ -4,8 +4,6 @@
 #include <boost/thread/thread.hpp>
 
 #include "BodyAnalyzer.h"
-#include <sstream>
-#include <stdexcept>
 
 namespace gz = gazebo;
 
@@ -57,7 +55,7 @@ void BodyAnalyzer::OnModel(ConstModelPtr & msg) {
 								 "', created model was '" + msg->name() + "'.");
 	}
 
-	if (world_->GetModels().size() > 1) {
+	if (world_->Models().size() > 1) {
 		throw std::runtime_error("INTERNAL ERROR: Too many models in analyzer.");
 	}
 
@@ -96,7 +94,7 @@ void BodyAnalyzer::OnContacts(ConstContactsPtr &msg) {
 	}
 	plock.unlock();
 
-	if (world_->GetModelCount() > 1) {
+	if (world_->ModelCount() > 1) {
 		std::cerr << "WARNING: Too many models in the world." << std::endl;
 	}
 
@@ -114,7 +112,7 @@ void BodyAnalyzer::OnContacts(ConstContactsPtr &msg) {
 	}
 
 	std::string name = "analyze_bot_"+boost::lexical_cast<std::string>(counter_);
-	gz::physics::ModelPtr model = world_->GetModel(name);
+	gz::physics::ModelPtr model = world_->ModelByName(name);
 
 	if (!model) {
 		std::cerr << "------------------------------------" << std::endl;
@@ -134,10 +132,10 @@ void BodyAnalyzer::OnContacts(ConstContactsPtr &msg) {
 	// Model collision bounding box is currently broken in Gazebo:
 	// https://bitbucket.org/osrf/gazebo/issue/1325/getboundingbox-returns-the-models-last
 	// My suggested fixes are present in the gazebo6-revolve branch
-	auto bbox = model->GetBoundingBox();
+	auto bbox = model->BoundingBox();
 	auto box = response.mutable_boundingbox();
-	gz::msgs::Set(box->mutable_min(), bbox.min.Ign());
-	gz::msgs::Set(box->mutable_max(), bbox.max.Ign());
+	gz::msgs::Set(box->mutable_min(), bbox.Min());
+	gz::msgs::Set(box->mutable_max(), bbox.Max());
 
 	// Publish the message, serializing the response message in the wrapper data
 	response.SerializeToString(wrapper.mutable_serialized_data());
@@ -200,7 +198,7 @@ void BodyAnalyzer::ProcessQueue() {
 		return;
 	}
 
-	if (world_->GetModelCount()) {
+	if (world_->ModelCount()) {
 		// There are still some items in the world, wait until
 		// `Clear()` has done its job.
 		return;
